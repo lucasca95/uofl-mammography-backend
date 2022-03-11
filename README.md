@@ -1,4 +1,4 @@
-# Backend: Mamography analysis
+# Backend: Mammography analysis
 Pending...
 
 ## Quick start
