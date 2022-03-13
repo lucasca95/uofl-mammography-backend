@@ -1,6 +1,9 @@
 # Backend: Mammography analysis
 Pending...
 
+## Frontend project repository
+[Check the frontend](https://github.com/lucasca95/uofl-mammography-frontend)
+
 ## Quick start
 --- Activate virtual environment
 ```bash
