@@ -14,18 +14,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["SECRET_KEY"] = 'jv5(78$62-hr+8==+kn4%r*(9g)fubx&&i=3ewc9p*tnkt6u$h'
 CORS(app, origins="*")
 api = Api(app)
-# pdb.set_trace()
-
 
 class UploadImage(Resource):
     def get(self):
-        print(f"\nENTRAMOS A GET\n")
         return {
             'status': 404,
             'message': 'Not allowed. Only POST'
         }
     def post(self):
-        print("\nENTRAMOS A POST\n")
         ret = {
             'status': 200,
             'message' : "Image uploaded successfully"

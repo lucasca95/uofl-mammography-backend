@@ -1,5 +1,8 @@
 # Custom files
-
+cronjob/images/*
+cronjob/cronlog.txt
+cronjob/models/*
+Prediction/
 server/images/
 
 # Byte-compiled / optimized / DLL files
