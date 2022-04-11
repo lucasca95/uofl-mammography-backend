@@ -262,3 +262,5 @@ if (len(sys.argv) > 1):
 
     except:
         print("Prediction for Mass lesions is not possible, the system could not proceed")
+else:
+    print(f"\nError: some arguments are missing\n")
