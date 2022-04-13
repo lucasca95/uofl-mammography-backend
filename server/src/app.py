@@ -1,9 +1,8 @@
 import os
 import pdb
-from io import BytesIO
 from time import sleep
 
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, request, send_file
 from flask_socketio import SocketIO
 from flask_restful import Resource, Api
 from flask_cors import CORS
@@ -35,6 +34,9 @@ app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 CORS(app, origins="*")
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://user:password@http://db:3306/db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
 
 mail = Mail(app)
 
