@@ -21,19 +21,13 @@ if (( $file_length > 0 )); then
     echo "$files_to_process" | while read line; do
         file_name="${line}"
         echo "${file_name}";
-        # if [[ "${file_name}" != "processed_images" ]]; then
-
         echo "${tmp_img_path}${file_name}";
         echo "${CRON_IMG_URL}${file_name}";
         echo "${CRON_URL}CAD_system.py";
 
         mv "${tmp_img_path}${file_name}" "${CRON_IMG_URL}${file_name}"
-        # mkdir -p "${proc_img_path}" && cp "${CRON_IMG_URL}${file_name}" "${proc_img_path}${file_name}"
-        # echo "Processing.";sleep 0.55s;echo "Processing..";sleep 0.55s;echo "Processing...";sleep 0.55s;
         python3 "${CRON_URL}CAD_system.py" "${file_name}";
-        # rm "${proc_img_path}${file_name}"
         echo "   Done!"
-        # fi
     done
 else
     echo "No images were detected..."

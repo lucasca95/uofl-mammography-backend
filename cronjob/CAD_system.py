@@ -101,7 +101,6 @@ if (len(sys.argv) > 1):
         roi2, detection_label2 = detect(image_path, multiple_anchors_path, multiple_classes, multiple_class_model_path)
         
         if roi1 is None and roi2 is None:
-            #detection_results[image_path] = (None, None)
             continue
         elif roi1 is not None and roi2 is None:
             detection_results[image_path] = (roi1, detection_label1)
@@ -243,7 +242,6 @@ if (len(sys.argv) > 1):
     try:
         img = load_img(foldername+'/'+name+'_segmented.png', target_size=(224, 224))
         img = img_to_array(img)
-        img = img.reshape((1, img.shape[0], img.shape[1], img.shape[2]))
         img = preprocess_input(img)
 
         pathology_diagnosis = classify(task='pathology', nb = 2, img=img, path=os.getenv('MODELS_FOLDER_URL'))
