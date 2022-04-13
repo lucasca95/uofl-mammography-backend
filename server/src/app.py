@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request
+from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_restful import Resource, Api
 from flask_cors import CORS
@@ -19,10 +20,15 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'dcom'}
 app = Flask(__name__)
 # app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["SECRET_KEY"] = 'jv5(78$62-hr+8==+kn4%r*(9g)fubx&&i=3ewc9p*tnkt6u$h'
+
 CORS(app, origins="*")
 # socketio = SocketIO(app, cors_allowed_origins='*')
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://user:password@http://db:3306/db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db = SQLAlchemy(app)
+
 
 class UploadImage(Resource):
     def get(self):
