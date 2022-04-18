@@ -17,6 +17,11 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+--- Define system variables
+```bash
+export FLASK_APP=/system/path/to/app.py
+export BASE_URL=/system/path/to/code/base/folder
+```
 
 --- Run Flask App
 ```bash
