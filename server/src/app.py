@@ -4,6 +4,7 @@ from time import sleep
 
 from flask import Flask, request, send_file
 from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from flask_mail import Mail, Message
@@ -13,7 +14,6 @@ import pymysql
 
 from os.path import exists
 from dotenv import load_dotenv
-# from sqlalchemy import JSON
 # from numpy import broadcast
 load_dotenv()
 # print(f"Check value of BASE_URL: {os.getenv('BASE_URL')}")
@@ -34,8 +34,24 @@ app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 CORS(app, origins="*")
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://user:password@http://db:3306/db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+
+
+# cnx = sql.connect(
+#     user='user',
+#     password='password',
+#     host='127.0.0.1',
+#     database='db'
+# )
+# cursor = cnx.cursor()
+# cursor.execute("SELECT * FROM IMAGE")
+# # pdb.set_trace()
+# if (cursor.rowcount):
+#     print("Results")
+# else:
+#     print("No results")
+
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
 mail = Mail(app)
