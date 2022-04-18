@@ -1,33 +1,56 @@
 import os
+import pdb
+
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from flask_cors import CORS
 
+# import mysql.connector as sql
 
 from os.path import exists
 from dotenv import load_dotenv
-from numpy import broadcast
+# from numpy import broadcast
 load_dotenv()
 print(f"Check value of BASE_URL: {os.getenv('BASE_URL')}")
 
-import pdb
 
 # UPLOAD_FOLDER = '/myfiles'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'dcom'}
 
 app = Flask(__name__)
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["SECRET_KEY"] = 'jv5(78$62-hr+8==+kn4%r*(9g)fubx&&i=3ewc9p*tnkt6u$h'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://user:password@http://localhost:3306/db'
 
 CORS(app, origins="*")
 # socketio = SocketIO(app, cors_allowed_origins='*')
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://user:password@http://db:3306/db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
+
+class Image(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name= db.Column(db.String(50), nullable=False)
+
+    def __repr__(self,):
+        return f'Image#{self.id}, '
+
+# cnx = sql.connect(
+#     user='user',
+#     password='password',
+#     host='127.0.0.1',
+#     database='db'
+# )
+# cursor = cnx.cursor()
+# cursor.execute("SELECT * FROM IMAGE")
+# # pdb.set_trace()
+# if (cursor.rowcount):
+#     print("Results")
+# else:
+#     print("No results")
+
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
 class UploadImage(Resource):
