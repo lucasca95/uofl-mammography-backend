@@ -1,5 +1,24 @@
-# Backend: Mammography analysis
-Pending...
+# Backend: Computer-aided Diagnosis (CAD) system for Breast Cancer Analysis
+The presented work proposed three main steps to process a mammogram using deep learning architecture model. First, the system should detect the location of abnormalities and distinguish their types to either Mass, Calcification. Next, the system focused on Mass lesions in mammograms and generated a precise contour of the Mass tumors to help determining their malignancy and grading score. Consequently, the ROI of masses were segmented to mask the tissue background and highlight the tumor. Finally, the integrated system predicted the pathology of the detected tumors and classified their BI-RADS score and shape.
+
+1) Detection and Identification of breast abnormalities
+We developed a YOLO-based fusion model to detect location and type of abnormal lesions in mammograms. Details are explained in the paper below.
+
+Reference: Baccouche, A., Garcia-Zapirain, B., Olea, C. C., & Elmaghraby, A. S. (2021). Breast lesions detection and classification via yolo-based fusion models. Comput. Mater. Contin., 69, 1407-1425.
+https://www.techscience.com/cmc/v69n1/42797
+
+2) Mass Segmentation and Image-to-image translation
+We proposed a novel architecture, called Connected-UNets, for mass segmentation and the results were enhanced by adding sysnthtic images generated using CycleGAN. Details are explained in the paper below.
+
+Reference: Baccouche, A., Garcia-Zapirain, B., Castillo Olea, C., & Elmaghraby, A. S. (2021). Connected-UNets: a deep learning architecture for breast mass segmentation. NPJ Breast Cancer, 7(1), 1-12.
+https://www.nature.com/articles/s41523-021-00358-x
+
+3) Mass Pathology Classification and Diagnosis
+The methodology for the final diagnosis was conducted using a stacked ensemble of ResNets. Details are explained in the paper below.
+
+Reference: Baccouche, A., Garcia-Zapirain, B., & Elmaghraby, A. (2022). An integrated Framework for Breast Mass Classification and Diagnosis using Stacked Ensemble of Residual Neural Networks.
+https://assets.researchsquare.com/files/rs-1389924/v1/b7279c30-6023-4d49-86ff-66cf524c5660.pdf?c=1646171041
+
 
 ## Frontend project repository
 [Check the frontend](https://github.com/lucasca95/uofl-mammography-frontend)
