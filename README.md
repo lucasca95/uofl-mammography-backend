@@ -1,3 +1,4 @@
+
 # Backend: Computer-aided Diagnosis (CAD) system for Breast Cancer Analysis
 The presented work proposed three main steps to process a mammogram using deep learning architecture model. First, the system should detect the location of abnormalities and distinguish their types to either Mass, Calcification. Next, the system focused on Mass lesions in mammograms and generated a precise contour of the Mass tumors to help determining their malignancy and grading score. Consequently, the ROI of masses were segmented to mask the tissue background and highlight the tumor. Finally, the integrated system predicted the pathology of the detected tumors and classified their BI-RADS score and shape.
 
