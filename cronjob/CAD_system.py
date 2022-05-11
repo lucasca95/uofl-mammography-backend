@@ -6,10 +6,12 @@ Created on Thu Feb 17 10:55:26 2022
 """
 
 
+from time import sleep
 import warnings, pdb, os, sys
 from dotenv import load_dotenv
 load_dotenv('../server/.env')
 
+import pymysql
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -28,6 +30,23 @@ from classification import classify
 
 
 if (len(sys.argv) > 1):
+
+    db_connected = False
+    while (not db_connected):
+        try:
+            connection = pymysql.connect(
+                host='localhost',
+                user='root',
+                password='password',
+                database='db',
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            db_connected=True
+            sleep(1)
+        except:
+            print(f'\nError with db connection\n')
+
 
     image_name = sys.argv[1]
     name = image_name[:-4]
@@ -142,9 +161,10 @@ if (len(sys.argv) > 1):
         predicted_roi.save(foldername+"/"+name+"_detected.png")
 
         print("Detection prediction: ", predicted_label, " with score = ", predicted_score)
-
+        # SAVE INTO DB
         f = open(foldername+"/"+name+"_detection_result.txt", "w+")
         f.write("Detection prediction: " + predicted_label + " with score = " + predicted_score)
+
         f.close()
 
     else:

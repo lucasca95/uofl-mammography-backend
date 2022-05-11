@@ -16,7 +16,6 @@ if (( $file_length > 0 )); then
     echo "$(ls ${tmp_img_path})";
     echo "There are files to process...";
     
-    # echo -n "Proceed? [y/n]: "; read ans;
     files_to_process=$(ls ${tmp_img_path} | cut -d ' ' -f1)
     echo "$files_to_process" | while read line; do
         file_name="${line}"
