@@ -59,9 +59,9 @@ while (not db_connected):
             cursorclass=pymysql.cursors.DictCursor
         )
         db_connected=True
-        sleep(2)
     except:
         print(f'\nError with db connection\n')
+        sleep(2)
 
 # =============================================================================
 #   Route behaviors
@@ -81,6 +81,7 @@ class UploadImage(Resource):
         uploaded_file = None
         if (request.files):
             uploaded_file = request.files["file"]
+            # pdb.set_trace()
             try:
                 os.mkdir(os.getenv('SRC_IMG_FOLDER_URL'))
             except:
@@ -102,6 +103,7 @@ class UploadImage(Resource):
                         sender=app.config.get("MAIL_USERNAME"),
                         recipients=[
                             'lucas.camino@louisville.edu',
+                            request.values.get('email')
                             # 'sahar.sinenemehdoui@louisville.edu',
                         ],
                         body="""This is a test email sent by the mammography backend server.""")

@@ -1,6 +1,6 @@
 #!/bin/bash
-source "/home/lucasca95/Documentos/laboratory_speed_school/mammograms/backend/venv/bin/activate";
-cd "/home/lucasca95/Documentos/laboratory_speed_school/mammograms/backend/cronjob";
+source "/home/lucascamino/Documentos/Proyectos/mamografias/backend/venv/bin/activate";
+cd "/home/lucascamino/Documentos/Proyectos/mamografias/backend/cronjob";
 
 source ../server/.env
 
