@@ -43,9 +43,9 @@ if (len(sys.argv) > 1):
                 cursorclass=pymysql.cursors.DictCursor
             )
             db_connected=True
-            sleep(1)
         except:
             print(f'\nError with db connection\n')
+            sleep(1)
 
 
     image_name = sys.argv[1]
@@ -165,10 +165,15 @@ if (len(sys.argv) > 1):
         with connection.cursor() as cursor:
             sql = """
             UPDATE IMAGE
-            SET detection = %s
+            SET prediction_level = %s,
+                detection = %s
             WHERE id = %s
             """
-            cursor.execute(sql, [predicted_score, name.split('_')[0]])
+            cursor.execute(sql, [
+                predicted_label,
+                predicted_score,
+                name.split('_')[0]]
+            )
         connection.commit()
 
         f = open(foldername+"/"+name+"_detection_result.txt", "w+")
@@ -283,14 +288,23 @@ if (len(sys.argv) > 1):
         print(shape_diagnosis)
 
         # UPDATE DB WITH CLASSIFICATION VALUES
-        # with connection.cursor() as cursor:
-        #     sql = """
-        #     UPDATE IMAGE
-        #     SET detection = %s
-        #     WHERE id = %s
-        #     """
-        #     cursor.execute(sql, [predicted_score, name.split('_')[0]])
-        # connection.commit()
+        with connection.cursor() as cursor:
+            sql = """
+            UPDATE IMAGE
+            SET pathology = %s,
+            birads_score = %s,
+            shape = %s
+            WHERE id = %s
+            """
+            cursor.execute(sql,
+                            [
+                             pathology_diagnosis,
+                             birads_diagnosis.split('-')[1],
+                             shape_diagnosis,
+                             name.split('_')[0]
+                            ]
+                            )
+        connection.commit()
 
         f = open(foldername+"/"+name+"_classification_result.txt", "w+")
         f.write("Pathology prediction: " + pathology_diagnosis+"\n")

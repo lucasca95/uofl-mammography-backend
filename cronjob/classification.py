@@ -69,7 +69,8 @@ def classify(task, nb, img, path):
     interpreter.invoke()
     predictions = (interpreter.get_tensor(output_index)).flatten()   
 
-    diagnosis = task + ' prediction: ' + labels[predictions.argmax(axis=0)]
+    # diagnosis = task + ' prediction: ' + labels[predictions.argmax(axis=0)]
+    diagnosis = labels[predictions.argmax(axis=0)]
     
     return diagnosis
 
