@@ -6,7 +6,7 @@ Pending...
 
 ## Quick start
 
--- Get models from [here](https://terabox.com/s/1hmhLpCTp_QsxXlLHregapg) and make sure the extracted data is on /crontab/models
+-- Get models from [here](https://terabox.com/s/1FxeNSQwMbvFlf5rIuCxzcQ) and make sure the extracted data is on /crontab/models
 
 --- Activate virtual environment
 ```bash

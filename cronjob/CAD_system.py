@@ -161,7 +161,16 @@ if (len(sys.argv) > 1):
         predicted_roi.save(foldername+"/"+name+"_detected.png")
 
         print("Detection prediction: ", predicted_label, " with score = ", predicted_score)
-        # SAVE INTO DB
+        # UPDATE DB WITH DETECTION VALUES
+        with connection.cursor() as cursor:
+            sql = """
+            UPDATE IMAGE
+            SET detection = %s
+            WHERE id = %s
+            """
+            cursor.execute(sql, [predicted_score, name.split('_')[0]])
+        connection.commit()
+
         f = open(foldername+"/"+name+"_detection_result.txt", "w+")
         f.write("Detection prediction: " + predicted_label + " with score = " + predicted_score)
 
@@ -260,6 +269,7 @@ if (len(sys.argv) > 1):
     #   Classification and Diagnosis
     # ============================================================================= 
     try:
+        print(f"\n\nfoldername: {foldername}\nname: {name}\nRevisar: {foldername+'/'+name+'_segmented.png'}\n\n")
         img = load_img(foldername+'/'+name+'_segmented.png', target_size=(224, 224))
         img = img_to_array(img)
         img = preprocess_input(img)
@@ -272,13 +282,23 @@ if (len(sys.argv) > 1):
         print(birads_diagnosis)
         print(shape_diagnosis)
 
-        f = open(foldername+"/"+name+"_classification_result.txt", "a+")
+        # UPDATE DB WITH CLASSIFICATION VALUES
+        # with connection.cursor() as cursor:
+        #     sql = """
+        #     UPDATE IMAGE
+        #     SET detection = %s
+        #     WHERE id = %s
+        #     """
+        #     cursor.execute(sql, [predicted_score, name.split('_')[0]])
+        # connection.commit()
+
+        f = open(foldername+"/"+name+"_classification_result.txt", "w+")
         f.write("Pathology prediction: " + pathology_diagnosis+"\n")
         f.write("BIRADS score prediction: " + birads_diagnosis+"\n")
         f.write("Shape prediction: " + shape_diagnosis+"\n")
         f.close()
 
-    except:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
+    except Exception as e:
+        print(f"\nPrediction for Mass lesions is not possible, the system could not proceed\n{e}\n")
 else:
     print(f"\nError: some arguments are missing\n")

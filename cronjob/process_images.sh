@@ -1,6 +1,6 @@
 #!/bin/bash
-source "/home/lucascamino/Documentos/Proyectos/mamografias/backend/venv/bin/activate";
-cd "/home/lucascamino/Documentos/Proyectos/mamografias/backend/cronjob";
+source "/home/lucasca95/Documentos/laboratory_speed_school/mammograms/backend/venv/bin/activate";
+cd "/home/lucasca95/Documentos/laboratory_speed_school/mammograms/backend/cronjob";
 
 source ../server/.env
 
@@ -23,8 +23,8 @@ if (( $file_length > 0 )); then
         echo "${tmp_img_path}${file_name}";
         echo "${CRON_IMG_URL}${file_name}";
         echo "${CRON_URL}CAD_system.py";
-
-        mv "${tmp_img_path}${file_name}" "${CRON_IMG_URL}${file_name}"
+        mkdir -p "${CRON_IMG_URL}";
+        mv "${tmp_img_path}${file_name}" "${CRON_IMG_URL}${file_name}";
         python3 "${CRON_URL}CAD_system.py" "${file_name}";
         echo "   Done!"
     done

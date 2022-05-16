@@ -14,14 +14,21 @@ import pymysql
 
 from os.path import exists
 from dotenv import load_dotenv
-# from numpy import broadcast
 load_dotenv()
-# print(f"Check value of BASE_URL: {os.getenv('BASE_URL')}")
 
+# =============================================================================
+#   Used to check the BASE_URL of the project
+# =============================================================================
+print(f"\nCheck value of BASE_URL: {os.getenv('BASE_URL')}\n")
 
-# UPLOAD_FOLDER = '/myfiles'
+# =============================================================================
+#   List of allowed file extensions
+# =============================================================================
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'dcom'}
 
+# =============================================================================
+#   Flask app declaration and config setup
+# =============================================================================
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'jv5(78$62-hr+8==+kn4%r*(9g)fubx&&i=3ewc9p*tnkt6u$h'
 app.config["MAIL_SERVER"] = 'smtp.gmail.com'
@@ -56,6 +63,9 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 mail = Mail(app)
 
+# =============================================================================
+#   Connection with DB
+# =============================================================================
 db_connected = False
 while (not db_connected):
     try:
@@ -72,36 +82,9 @@ while (not db_connected):
     except:
         print(f'\nError with db connection\n')
 
-# try:
-#     cursor = cnx.cursor()
-#     q = ("INSERT INTO IMAGE "
-#         "(name) "
-#         "VALUES (%s)")
-#     d = (['test.png'])
-#     cursor.execute(q, d)
-#     i_n = cursor.lastrowid
-#     print(f'{i_n}')
-
-# except sql.Error as err:
-#     print(f'\nSomething went wrong\n{err}\n')
-
-# try:
-#     cursor = cnx.cursor()
-#     q = ("SELECT * "
-#         "FROM IMAGE ")
-#     cursor.execute(q)
-#     for r in cursor:
-#         print(f'{r}')
-
-# except sql.Error as err:
-#     print(f'\nSomething went wrong\n{err}\n')
-
-
-# if (cursor.rowcount):
-#     print("There are results")
-# else:
-#     print("There are no results")
-
+# =============================================================================
+#   Route behaviors
+# =============================================================================
 class UploadImage(Resource):
     def get(self):
         return {
@@ -114,7 +97,7 @@ class UploadImage(Resource):
             'message' : "Image uploaded successfully",
             'code': -1
         }
-        uploaded_file = None 
+        uploaded_file = None
         if (request.files):
             uploaded_file = request.files["file"]
             try:
@@ -124,15 +107,16 @@ class UploadImage(Resource):
 
             if (not exists(f"{os.getenv('SRC_IMG_FOLDER_URL')}{uploaded_file.filename}")):
                 try:
-                    uploaded_file.save(f"{os.getenv('SRC_IMG_FOLDER_URL')}{uploaded_file.filename}")
                     with connection.cursor() as cursor:
                         sql = """INSERT INTO IMAGE(name)VALUES(%s)"""
                         cursor.execute(sql, [uploaded_file.filename])
                         ret['code'] = cursor.lastrowid
                     connection.commit()
 
+                    uploaded_file.save(f"{os.getenv('SRC_IMG_FOLDER_URL')}{str(ret['code'])}_{uploaded_file.filename}")
+                    
                     socketio.emit('new', 100, broadcast=True)
-
+                    
                     msg = Message(subject='Testing email',
                         sender=app.config.get("MAIL_USERNAME"),
                         recipients=[
@@ -142,11 +126,17 @@ class UploadImage(Resource):
                         body="""This is a test email sent by the mammography backend server.""")
                     mail.send(msg)
 
-                    # pdb.set_trace()
+                    # pdb.set_tracle()
                     # i=0
                 except Exception as e:
-                    pdb.set_trace()
+                    # pdb.set_trace()
                     print("\nError when saving image\n")
+                    if (ret['code'] != -1):
+                        with connection.cursor() as cursor:
+                            sql = """DELETE FROM IMAGE WHERE id=%s"""
+                            cursor.execute(sql, [str(ret['code'])])
+                            ret['code'] = cursor.lastrowid
+                        connection.commit()
                     ret = {
                         'status': 403,
                         'message' : "Error when saving image"
@@ -156,7 +146,7 @@ class UploadImage(Resource):
                     'status': 403,
                     'message' : "File already exists"
                 }
-        print(f"\n\n\n{ret}\n\n\n")
+
         return ret
 
 class RetrieveImage(Resource):
@@ -232,23 +222,25 @@ class RetrieveImageResults(Resource):
                 'shape': None,
             }
 
-
 class Home(Resource):
     def get(self):
-        # socketio.emit('test', 120)
-        # msg = Message(subject='Testing email',
-        #     sender=app.config.get("MAIL_USERNAME"),
-        #     recipients=[
-        #         'lucas.camino@louisville.edu',
+        socketio.emit('test', 120)
+        msg = Message(subject='Testing email',
+            sender=app.config.get("MAIL_USERNAME"),
+            recipients=[
+                'lucas.camino@louisville.edu',
         #         'sahar.sinenemehdoui@louisville.edu',
-        #     ],
-        #     body="""This is a test email sent by the mammography backend server.""")
-        # mail.send(msg)
+            ],
+            body="""This is a test email sent by the mammography backend server.""")
+        mail.send(msg)
         return {
             'status':200,
             'message': 'Server up and running!'
         }
 
+# =============================================================================
+#   Functions used to test SocketIO
+# =============================================================================
 @socketio.on('connect')
 def test_connnect():
     # print(f"\nSocket connected\n")
@@ -259,11 +251,16 @@ def test_disconnnect():
     # print(f"\nSocket disconnected\n")
     pass
 
+# =============================================================================
+#   Routes declaration
+# =============================================================================
 api.add_resource(UploadImage, '/img/')
 api.add_resource(RetrieveImage, '/img/retrieve/')
 api.add_resource(RetrieveImageResults, '/img/retrieveresults/')
 api.add_resource(Home, '/')
 
-
+# =============================================================================
+#   Used to run flask server as python script
+# =============================================================================
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port="5000")

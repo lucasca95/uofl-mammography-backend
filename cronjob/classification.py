@@ -26,7 +26,7 @@ def classify(task, nb, img, path):
     else:
         labels = ['Malignant', 'Benign']
         
-    p = path + "/"+ task
+    p = path + task
 
     interpreter1 = tf.lite.Interpreter(p+'_ResNet50V2_model_quant.tflite')
     interpreter1.allocate_tensors()
