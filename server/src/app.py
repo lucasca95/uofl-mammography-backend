@@ -41,25 +41,6 @@ CORS(app, origins="*")
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-
-
-# cnx = sql.connect(
-#     user='user',
-#     password='password',
-#     host='127.0.0.1',
-#     database='db'
-# )
-# cursor = cnx.cursor()
-# cursor.execute("SELECT * FROM IMAGE")
-# # pdb.set_trace()
-# if (cursor.rowcount):
-#     print("Results")
-# else:
-#     print("No results")
-
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-
 mail = Mail(app)
 
 # =============================================================================
