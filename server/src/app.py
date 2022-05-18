@@ -40,7 +40,6 @@ app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 CORS(app, origins="*")
 api = Api(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
-
 mail = Mail(app)
 
 # =============================================================================
