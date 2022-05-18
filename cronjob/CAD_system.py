@@ -148,14 +148,9 @@ if (len(sys.argv) > 1):
         f.write("Detection prediction: " + predicted_label + " with score = " + predicted_score)
         f.close()
 
-    else:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
-
-    # =============================================================================
-    #   Segmentation (Connected ResUnets)
-    # ============================================================================= 
-
-    try:
+        # =============================================================================
+        #   Segmentation (Connected ResUnets)
+        # ============================================================================= 
         img = cv2.imread(foldername+"/"+name+"_detected.png")
         #enhancement
         gray_img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -173,15 +168,10 @@ if (len(sys.argv) > 1):
 
         img_mask = segment(model_path, img)
         imsave(foldername+"/"+name+"_mask.png", img_mask)
-
-    except:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
-
-    # =============================================================================
-    #   Postprocessing 
-    # ============================================================================= 
-
-    try:
+        
+        # =============================================================================
+        #   Postprocessing 
+        # ============================================================================= 
         img_mask = cv2.imread(foldername+"/"+name+"_mask.png", 0)
         _, img_mask = cv2.threshold(img_mask, 127, 255, cv2.THRESH_BINARY)
         pred_contour, _ = cv2.findContours(img_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
@@ -195,14 +185,10 @@ if (len(sys.argv) > 1):
 
         imsave(foldername+"/"+name+"_mask_postprocessed.png", new_img_mask)
 
-    except:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
+        # =============================================================================
+        #   Draw Countour
+        # ============================================================================= 
 
-    # =============================================================================
-    #   Draw Countour
-    # ============================================================================= 
-
-    try:
         new_img_mask = cv2.imread(foldername+"/"+name+"_mask_postprocessed.png", 0)
         _, seg_img = cv2.threshold(new_img_mask, 127, 255, cv2.THRESH_BINARY)
         pred_contour, _ = cv2.findContours(seg_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
@@ -216,15 +202,11 @@ if (len(sys.argv) > 1):
         cv2.drawContours(roi, pred_contour, 0, (0, 0, 255), 1)
 
         cv2.imwrite(foldername+'/'+name+'_countour.png', roi)
+        
+        # =============================================================================
+        #   Masked Roi
+        # ============================================================================= 
 
-    except:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
-
-    # =============================================================================
-    #   Masked Roi
-    # ============================================================================= 
-
-    try:
         roi = cv2.imread(foldername+"/"+name+"_detected.png")
         mask = cv2.imread(foldername+"/"+name+"_mask_postprocessed.png", 0)
 
@@ -235,12 +217,9 @@ if (len(sys.argv) > 1):
                     
         cv2.imwrite(foldername+'/'+name+'_segmented.png', roi)
 
-    except:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
-    # =============================================================================
-    #   Classification and Diagnosis
-    # ============================================================================= 
-    try:
+        # =============================================================================
+        #   Classification and Diagnosis
+        # ============================================================================= 
         img = load_img(foldername+'/'+name+'_segmented.png', target_size=(224, 224))
         img = img_to_array(img)
         img = img.reshape((1, img.shape[0], img.shape[1], img.shape[2]))
@@ -259,8 +238,9 @@ if (len(sys.argv) > 1):
         f.write("BIRADS score prediction: " + birads_diagnosis+"\n")
         f.write("Shape prediction: " + shape_diagnosis+"\n")
         f.close()
-
-    except:
+        
+    else:
         print("Prediction for Mass lesions is not possible, the system could not proceed")
+   
 else:
     print(f"\nError: some arguments are missing\n")
