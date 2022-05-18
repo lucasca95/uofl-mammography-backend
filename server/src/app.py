@@ -4,7 +4,6 @@ from time import sleep
 
 from flask import Flask, request, send_file
 from flask_socketio import SocketIO
-from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from flask_mail import Mail, Message
@@ -80,7 +79,7 @@ while (not db_connected):
         db_connected=True
     except:
         print(f'\nError with db connection\n')
-        sleep(2)
+        sleep(5)
 
 # =============================================================================
 #   Route behaviors
@@ -109,8 +108,8 @@ class UploadImage(Resource):
             if (not exists(f"{os.getenv('SRC_IMG_FOLDER_URL')}{uploaded_file.filename}")):
                 try:
                     with connection.cursor() as cursor:
-                        sql = """INSERT INTO IMAGE(name)VALUES(%s)"""
-                        cursor.execute(sql, [uploaded_file.filename])
+                        sql = """INSERT INTO IMAGE(name, email)VALUES(%s, %s)"""
+                        cursor.execute(sql, [uploaded_file.filename, request.values.get('email')])
                         ret['code'] = cursor.lastrowid
                     connection.commit()
 
@@ -118,14 +117,17 @@ class UploadImage(Resource):
                     
                     socketio.emit('new', 100, broadcast=True)
                     
-                    msg = Message(subject='Testing email',
+                    msg = Message(subject='Submission confirmation',
                         sender=app.config.get("MAIL_USERNAME"),
                         recipients=[
                             'lucas.camino@louisville.edu',
                             request.values.get('email')
                             # 'sahar.sinenemehdoui@louisville.edu',
                         ],
-                        body="""This is a test email sent by the mammography backend server.""")
+                        html="""
+                            <h1>Image accepted</h1>
+                            <p>Your image has been accepted for processing. Your <i>request code</i> is <strong>""" + str(ret['code']) +
+                            """</strong>.</p>""")
                     mail.send(msg)
 
                     # pdb.set_tracle()
@@ -133,6 +135,7 @@ class UploadImage(Resource):
                 except Exception as e:
                     # pdb.set_trace()
                     print("\nError when saving image\n")
+                    print(e)
                     if (ret['code'] != -1):
                         with connection.cursor() as cursor:
                             sql = """DELETE FROM IMAGE WHERE id=%s"""
@@ -204,12 +207,12 @@ class RetrieveImageResults(Resource):
         
         # if exists...
         # # find it on server and send to frontend
-        pdb.set_trace()
-        print('asd')
-        if ((res['detection']) and (res['pathology'])
-            and res['birads_score'] and res['shape']):
+        # pdb.set_trace()
+        # print('asd')
+        if ((res['shape'])):
             return {
                 'status': 200,
+                'preduction': res['prediction_level'],
                 'detection': float(res['detection']),
                 'pathology': res['pathology'],
                 'birads_score': res['birads_score'],
@@ -227,14 +230,23 @@ class RetrieveImageResults(Resource):
 class Home(Resource):
     def get(self):
         socketio.emit('test', 120)
-        msg = Message(subject='Testing email',
-            sender=app.config.get("MAIL_USERNAME"),
-            recipients=[
-                'lucas.camino@louisville.edu',
-        #         'sahar.sinenemehdoui@louisville.edu',
-            ],
-            body="""This is a test email sent by the mammography backend server.""")
-        mail.send(msg)
+        # msg = Message(subject='Testing email',
+        #     sender=app.config.get("MAIL_USERNAME"),
+        #     recipients=[
+        #         'lucas.camino@louisville.edu',
+        # #         'sahar.sinenemehdoui@louisville.edu',
+        #     ],
+        #     html="""
+        #             <h1>TEST</h1>
+        #             This is a test email sent by the mammography backend server.
+        #         """
+        #     )
+        # mail.send(msg)
+        for ff in os.listdir(os.getenv("CRON_VARIATIONS_URL")):
+            # print(f"\n{ff}\n")
+            os.remove(f'{os.getenv("CRON_VARIATIONS_URL")}{ff}')
+            # pdb.set_trace()
+            # print("")
         return {
             'status':200,
             'message': 'Server up and running!'
