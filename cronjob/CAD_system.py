@@ -87,7 +87,7 @@ if (len(sys.argv) > 1):
         os.mkdir(subfoldername)
     except:
         print("Folder already exists!")     
-        
+    
 
     if len(os.listdir(subfoldername)) == 0:
         for angle in [0,90,180,270]:
@@ -99,7 +99,7 @@ if (len(sys.argv) > 1):
         images = glob.glob(subfoldername+"/*.png")
         if len(images) == 0:
             images = glob.glob(subfoldername+"/*.jpg")
-    except:       
+    except:
         print("image either does not exist or image type is not supported!")
 
     # =============================================================================
@@ -314,5 +314,10 @@ if (len(sys.argv) > 1):
 
     except Exception as e:
         print(f"\nPrediction for Mass lesions is not possible, the system could not proceed\n{e}\n")
+    try:
+        for ff in os.listdir(os.getenv("CRON_VARIATIONS_URL")):
+            os.remove(f'{os.getenv("CRON_VARIATIONS_URL")}{ff}')           
+    except Exception as e:
+        print(e)
 else:
     print(f"\nError: some arguments are missing\n")
