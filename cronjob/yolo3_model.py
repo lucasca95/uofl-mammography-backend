@@ -2,7 +2,7 @@
 """
 Created on Wed Sep 23 18:55:42 2020
 
-@author: User
+@author: Baccouche, Asma.
 """
 
 """YOLO_v3 Model Defined in Keras."""
