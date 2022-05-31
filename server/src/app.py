@@ -1,12 +1,16 @@
+from crypt import methods
 import os
 import pdb
 from time import sleep
 
-from flask import Flask, request, send_file
+from flask import Flask, jsonify, make_response, request, send_file
 from flask_socketio import SocketIO
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from flask_mail import Mail, Message
+import jwt
+import datetime
+import bcrypt as bb
 
 import pymysql 
 # import mysql.connector as sql
@@ -209,28 +213,32 @@ class RetrieveImageResults(Resource):
 
 class Home(Resource):
     def get(self):
-        socketio.emit('test', 120)
-        # msg = Message(subject='Testing email',
-        #     sender=app.config.get("MAIL_USERNAME"),
-        #     recipients=[
-        #         'lucas.camino@louisville.edu',
-        # #         'sahar.sinenemehdoui@louisville.edu',
-        #     ],
-        #     html="""
-        #             <h1>TEST</h1>
-        #             This is a test email sent by the mammography backend server.
-        #         """
-        #     )
-        # mail.send(msg)
-        for ff in os.listdir(os.getenv("CRON_VARIATIONS_URL")):
-            # print(f"\n{ff}\n")
-            os.remove(f'{os.getenv("CRON_VARIATIONS_URL")}{ff}')
-            # pdb.set_trace()
-            # print("")
         return {
             'status':200,
             'message': 'Server up and running!'
         }
+
+class Login(Resource):
+    def post(self):
+        try:
+            user_email = request.values.get('userEmail')
+            user_password = bb.hashpw(request.values.get('userPassword').encode("utf-8"), bb.gensalt())
+            token = jwt.encode({
+                'user': user_email,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            }, app.config['SECRET_KEY'])
+            # pdb.set_trace()
+            # print("")
+            return {
+                'status':200,
+                'message': 'Login successfull',
+                'token': token
+            }
+        except Exception as e:
+            return {
+                'status': 400,
+                'message': e
+            }
 
 # =============================================================================
 #   Functions used to test SocketIO
@@ -251,7 +259,21 @@ def test_disconnnect():
 api.add_resource(UploadImage, '/img/')
 api.add_resource(RetrieveImage, '/img/retrieve/')
 api.add_resource(RetrieveImageResults, '/img/retrieveresults/')
+api.add_resource(Login, '/login/')
 api.add_resource(Home, '/')
+
+# @app.route('/login/', methods=['POST'])
+# def login():
+#     # pdb.set_trace()
+#     auth = request.authorization
+#     print(request.authorization)
+#     if auth and auth.password == 'password':
+#         token = jwt.encode({
+#             'user': auth.username,
+#             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+#         }, app.config['SECRET_KEY'])
+#         return jsonify({'token': token.decode('UTF-8')})
+#     return make_response('Could NOT verify user', 401, {'WWW_Authenticate':'Basic realm="Login Required"'})
 
 # =============================================================================
 #   Used to run flask server as python script
