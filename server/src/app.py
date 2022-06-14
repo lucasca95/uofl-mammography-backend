@@ -218,26 +218,91 @@ class Home(Resource):
             'message': 'Server up and running!'
         }
 
+class RegisterClient(Resource):
+    def post(self):
+        try:
+            ufn = request.values.get('userFirstName')
+            uln = request.values.get('userLastName')
+            uemail = request.values.get('userEmail')
+            upass = request.values.get('userPassword')
+            upasshash = bb.hashpw(upass.encode("utf-8"), bb.gensalt())
+            aux = None
+            with connection.cursor() as cursor:
+                sql = """
+                    INSERT INTO APPUSER(
+                        first_name,
+                        last_name,
+                        email,
+                        password
+                    ) VALUES (
+                        (%s),
+                        (%s),
+                        (%s),
+                        (%s)
+                    )
+                    """
+                aux = cursor.execute(sql, [ufn, uln, uemail, upasshash])
+            connection.commit()
+            # pdb.set_trace(); print()
+            return {
+                'status': 200,
+                'message': 'You have been registered successfully'
+            }
+        except Exception as e:
+            print(f"\n\n{str(e)}")
+            msg = 'Error when registering.'
+            code = int(str(e).split(',')[0].split('(')[1])
+            if (code == 1062):
+                msg += " User email has already been used."
+            # pdb.set_trace()
+            return {
+                'status': 400,
+                'message': msg
+            }
+
+
 class Login(Resource):
     def post(self):
         try:
-            user_email = request.values.get('userEmail')
-            user_password = bb.hashpw(request.values.get('userPassword').encode("utf-8"), bb.gensalt())
-            token = jwt.encode({
-                'user': user_email,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-            }, app.config['SECRET_KEY'])
-            # pdb.set_trace()
-            # print("")
+            uemail = request.values.get('userEmail')
+            upass = request.values.get('userPassword')
+
+            res = None
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT APPUSER.first_name, 
+                            APPUSER.last_name, 
+                            APPUSER.email, 
+                            APPUSER.password
+                    FROM APPUSER
+                    WHERE APPUSER.email = (%s)
+                    """
+                cursor.execute(sql, [uemail])
+                res = cursor.fetchone()
+            connection.commit()
+            if (res):
+                # Tengo usuario. Ahora compruebo password
+                if (bb.checkpw(upass.encode('utf-8'), res['password'].encode('utf-8'))):
+                    # email and password match
+                    token = jwt.encode({
+                        'user': uemail,
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                    }, app.config['SECRET_KEY'])
+                    return {
+                        'status': 200,
+                        'message': 'Login successful',
+                        'token': token
+                    }
+
             return {
-                'status':200,
-                'message': 'Login successfull',
-                'token': token
+                'status': 402,
+                'message': 'Credentials are not valid'
             }
         except Exception as e:
+            print(f'\n{e}')
             return {
                 'status': 400,
-                'message': e
+                'message': 'There has been an error'
             }
 
 # =============================================================================
@@ -260,6 +325,7 @@ api.add_resource(UploadImage, '/img/')
 api.add_resource(RetrieveImage, '/img/retrieve/')
 api.add_resource(RetrieveImageResults, '/img/retrieveresults/')
 api.add_resource(Login, '/login/')
+api.add_resource(RegisterClient, '/register/')
 api.add_resource(Home, '/')
 
 # @app.route('/login/', methods=['POST'])
