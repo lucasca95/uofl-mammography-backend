@@ -34,18 +34,17 @@ if (len(sys.argv) > 1):
     while (not db_connected):
         try:
             connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='password',
-                database='db',
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            db_connected=True
+            host='localhost',
+            user='root',
+            password='PASSWORD',
+            database='lab',
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        db_connected=True
         except:
-            # print(f'\nError with db connection\n')
+            print(f'\nError with db connection\n')
             sleep(2)
-
 
     image_name = sys.argv[1]
     name = image_name[:-4]
@@ -76,8 +75,8 @@ if (len(sys.argv) > 1):
     # =============================================================================
     #   Preprocessing
     # =============================================================================
-
     img = cv2.imread(f"{file}")
+    
     try:
         img.shape
     except:
@@ -186,8 +185,9 @@ if (len(sys.argv) > 1):
         f.close()
 
     else:
-        print("Prediction for Mass lesions is not possible, the system could not proceed")
+        print("\nPrediction for Mass lesions is not possible, the system could not proceed\n")
         sys.exit(1)
+
 
     # =============================================================================
     #   Segmentation (Connected ResUnets)
@@ -269,32 +269,43 @@ if (len(sys.argv) > 1):
     img = img_to_array(img)
     img = preprocess_input(img)
 
-    pathology_diagnosis = classify(task='pathology', nb = 2, img=img, path=os.getenv('MODELS_FOLDER_URL'))
-    birads_diagnosis = classify(task='birads', nb = 5, img=img, path=os.getenv('MODELS_FOLDER_URL'))
-    shape_diagnosis = classify(task='shape', nb = 4, img=img, path=os.getenv('MODELS_FOLDER_URL'))
-
+    try:
+        pathology_diagnosis = classify(task='pathology', nb = 2, img=img, path=os.getenv('MODELS_FOLDER_URL'))
+        birads_diagnosis = classify(task='birads', nb = 5, img=img, path=os.getenv('MODELS_FOLDER_URL'))
+        shape_diagnosis = classify(task='shape', nb = 4, img=img, path=os.getenv('MODELS_FOLDER_URL'))
+    except Exception as e:
+        print(f"Error: {e}")
     # print(pathology_diagnosis)
     # print(birads_diagnosis)
     # print(shape_diagnosis)
 
+    # pdb.set_trace();print('\n\nCheckpoint pre classification\n')
+
+
     # UPDATE DB WITH CLASSIFICATION VALUES
-    with connection.cursor() as cursor:
-        sql = """
-        UPDATE IMAGE
-        SET pathology = %s,
-        birads_score = %s,
-        shape = %s
-        WHERE id = %s
-        """
-        cursor.execute(sql,
-                        [
-                            pathology_diagnosis,
-                            birads_diagnosis.split('-')[1],
-                            shape_diagnosis,
-                            name.split('_')[0]
-                        ]
-                        )
-    connection.commit()
+    try:
+        print(f'DB and classification')
+        with connection.cursor() as cursor:
+            sql = """
+            UPDATE IMAGE
+            SET pathology = %s,
+            birads_score = %s,
+            shape = %s
+            WHERE id = %s
+            """
+            cursor.execute(sql,
+                            [
+                                pathology_diagnosis,
+                                birads_diagnosis.split('-')[1],
+                                shape_diagnosis,
+                                name.split('_')[0]
+                            ]
+                            )
+        connection.commit()
+    except Exception as e:
+        print(f'Error: {e}')
+
+    # pdb.set_trace();print('\n\nCheckpoint post classification\n')
 
     f = open(foldername+"/"+name+"_classification_result.txt", "w+")
     f.write("Pathology prediction: " + pathology_diagnosis+"\n")
