@@ -89,6 +89,7 @@ class UploadImage(Resource):
             if (not exists(f"{os.getenv('SRC_IMG_FOLDER_URL')}{uploaded_file.filename}")):
                 try:
                     user_email = request.values.get('email')
+                    sleep(0.1)
                     with connection.cursor() as cursor:
                         sql = """INSERT INTO IMAGE(name, user_id)VALUES(
                             %s,
@@ -394,6 +395,7 @@ class Login(Resource):
                     return {
                         'status': 200,
                         'message': 'Login successful',
+                        'email': uemail,
                         'token': token
                     }
 
