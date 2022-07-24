@@ -3,7 +3,6 @@ import pdb
 from time import sleep
 
 from flask import Flask, redirect, request, send_file, url_for, send_file
-from flask_socketio import SocketIO
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from flask_mail import Mail, Message
@@ -43,7 +42,6 @@ app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 
 CORS(app, origins="*")
 api = Api(app)
-socketio = SocketIO(app, cors_allowed_origins='*')
 mail = Mail(app)
 url_sts = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
@@ -103,8 +101,6 @@ class UploadImage(Resource):
                     connection.commit()
 
                     uploaded_file.save(f"{os.getenv('SRC_IMG_FOLDER_URL')}{str(ret['code'])}_{uploaded_file.filename}")
-
-                    socketio.emit('new', 100, broadcast=True)
                     
                     msg = Message(subject='Submission confirmation',
                         sender=app.config.get("MAIL_USERNAME"),
@@ -410,18 +406,6 @@ class Login(Resource):
                 'message': 'There has been an error'
             }
 
-# =============================================================================
-#   Functions used to test SocketIO
-# =============================================================================
-@socketio.on('connect')
-def test_connnect():
-    # print(f"\nSocket connected\n")
-    pass
-
-@socketio.on('disconnect')
-def test_disconnnect():
-    # print(f"\nSocket disconnected\n")
-    pass
 
 # =============================================================================
 #   Routes declaration
