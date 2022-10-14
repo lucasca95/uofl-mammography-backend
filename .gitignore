@@ -4,6 +4,7 @@ cronjob/cronlog.txt
 cronjob/models/*
 Prediction/
 server/images/
+server/src/files.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

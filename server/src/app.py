@@ -9,6 +9,10 @@ from flask_mail import Mail, Message
 import jwt
 import datetime
 import bcrypt as bb
+import zipfile
+import glob
+import re
+from io import BytesIO
 
 import pymysql
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
@@ -61,8 +65,8 @@ while (not db_connected):
             cursorclass=pymysql.cursors.DictCursor
         )
         db_connected=True
-    except:
-        print(f'\nError with db connection\n')
+    except Exception as ee:
+        print(f'\nError with db connection\n{ee}')
         sleep(5)
 
 # =============================================================================
@@ -105,7 +109,7 @@ class UploadImage(Resource):
                     msg = Message(subject='Submission confirmation',
                         sender=app.config.get("MAIL_USERNAME"),
                         recipients=[
-                            'lucas.camino@louisville.edu',
+                            # 'lucas.camino@louisville.edu',
                             request.values.get('email')
                             # 'sahar.sinenemehdoui@louisville.edu',
                         ],
@@ -140,6 +144,7 @@ class RetrieveImageList(Resource):
         
         images = []
         user_email = request.values.get('user_email')
+        # print(user_email)
         try:
             with connection.cursor() as cursor:
                 sql = """SELECT ii.id, 
@@ -166,6 +171,7 @@ class RetrieveImageList(Resource):
                     
                     
             connection.commit()
+            # print(images)
             return {
                 'status': 200,
                 'images': images
@@ -199,11 +205,24 @@ class RetrieveImage(Resource):
         # if NOT exists...
         if (not res):
             print(f"\nRequested id does not exist\n")
-            return {}
+            return ret
         
         # if exists...
         # # find it on server and send to frontend
-        return send_file(f'{os.getenv("CRON_IMG_URL")}{res["id"]}_{res["name"]}', as_attachment=False)
+
+        file_list = glob.glob('./cronjob/Prediction/'+str(res["id"])+'_'+res["name"].split('.')[0]+'*.png')
+        zf = zipfile.ZipFile('./server/src/files.zip', 'w', zipfile.ZIP_DEFLATED)
+        for ff in file_list:
+            print(ff)
+            zf.write(ff)
+        zf.write('./cronjob/images/'+str(res["id"])+'_'+res["name"])
+
+        # send_file(f'{os.getenv("CRON_IMG_URL")}{res["id"]}_{res["name"]}', as_attachment=False),
+        zf.close()
+        # pdb.set_trace();print('before sending')
+        print(f'{os.getenv("BASE_URL")}files.zip')
+        
+        return send_file('files.zip', mimetype = 'zip', attachment_filename=f'files.zip', as_attachment=True)
 
 class RetrieveImageResults(Resource):
     def post(self):
@@ -263,9 +282,11 @@ class Home(Resource):
 
 class EmailConfirmation(Resource):
     def post(self):
+        print(f'EMAIL CONFIRMATION POST METHOD')
         token = request.values.get('token')
         email = request.values.get('email')
         valid_time_window = 60*5 # seconds
+
 
         try:
             uemail = url_sts.loads(token, salt='UofLEmailToken', max_age=valid_time_window)
@@ -411,13 +432,12 @@ class Login(Resource):
 #   Routes declaration
 # =============================================================================
 
-
+api.add_resource(Login, '/login/')
 api.add_resource(RetrieveImageList, '/images/')
-api.add_resource(EmailConfirmation, '/verifyemail/')
+api.add_resource(EmailConfirmation, '/emailvalidation/')
 api.add_resource(UploadImage, '/img/')
 api.add_resource(RetrieveImage, '/img/retrieve/')
 api.add_resource(RetrieveImageResults, '/img/retrieveresults/')
-api.add_resource(Login, '/login/')
 api.add_resource(RegisterClient, '/register/')
 api.add_resource(Home, '/')
 

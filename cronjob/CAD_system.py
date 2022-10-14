@@ -34,14 +34,14 @@ if (len(sys.argv) > 1):
     while (not db_connected):
         try:
             connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='PASSWORD',
-            database='lab',
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        db_connected=True
+                host='localhost',
+                user='root',
+                password='PASSWORD',
+                database='lab',
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            db_connected=True
         except:
             print(f'\nError with db connection\n')
             sleep(2)
