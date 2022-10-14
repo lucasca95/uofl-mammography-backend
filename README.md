@@ -25,7 +25,7 @@ https://assets.researchsquare.com/files/rs-1389924/v1/b7279c30-6023-4d49-86ff-66
 
 ## Quick start
 
--- Get models from [here](https://terabox.com/s/1hmhLpCTp_QsxXlLHregapg) and make sure the extracted data is on /crontab/models
+-- Get models from [here](https://terabox.com/s/1FxeNSQwMbvFlf5rIuCxzcQ) and make sure the extracted data is on /crontab/models
 
 --- Activate virtual environment
 ```bash
@@ -35,6 +35,11 @@ source venv/bin/activate
 --- Install requirements from file
 ```bash
 pip install -r requirements.txt
+```
+--- Define system variables
+```bash
+export FLASK_APP=/system/path/to/app.py
+export BASE_URL=/system/path/to/code/base/folder
 ```
 
 --- Run Flask App

@@ -2,7 +2,7 @@
 """
 Created on Wed Sep 23 18:55:42 2020
 
-@author: User
+@author: Baccouche, Asma.
 """
 
 """YOLO_v3 Model Defined in Keras."""
@@ -14,8 +14,6 @@ import tensorflow as tf
 from keras import backend as K
 from keras.layers import Conv2D, Add, ZeroPadding2D, UpSampling2D, Concatenate, MaxPooling2D
 from keras.layers.advanced_activations import LeakyReLU
-# from keras.layers.normalization import BatchNormalization
-# from keras.layers.normalization import batch_normalization ---- not working
 from keras.models import Model
 from keras.regularizers import l2
 

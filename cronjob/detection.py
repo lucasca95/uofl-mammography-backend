@@ -2,19 +2,15 @@
 """
 Created on Fri Feb 18 09:52:10 2022
 
-@author: Asma Baccouche
+@author: Baccouche, Asma.
 """
 import warnings
-import pdb
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     
 import os
 import numpy as np
-from tensorflow.compat.v1.keras import backend as K
-import tensorflow as tf
-tf.compat.v1.disable_eager_execution()
 from keras.models import load_model
 from keras.layers import Input
 from PIL import Image
@@ -31,7 +27,6 @@ def get_anchors(anchors_path):
     return np.array(anchors).reshape(-1, 2)
 
 def detect(image_path, anchors_path, class_names, model_path, t_score = 0.35, t_iou = 0.45, model_image_size = (448, 448)):
-    # pdb.set_trace()
     anchors = get_anchors(anchors_path)   
     model_path = os.path.expanduser(model_path)
     
@@ -45,11 +40,7 @@ def detect(image_path, anchors_path, class_names, model_path, t_score = 0.35, t_
         yolo_model.load_weights(model_path) 
     else:
         assert yolo_model.layers[-1].output_shape[-1] == num_anchors/len(yolo_model.output) * (num_classes + 5), 'Mismatch between model and given anchor and class sizes'
-        
-    input_image_shape = K.placeholder(shape=(2, ))
-    
-    boxes, scores, classes = yolo_eval(yolo_model.output, anchors, len(class_names), input_image_shape, score_threshold=t_score, iou_threshold=t_iou)
-    
+
     image = Image.open(image_path)
     image = image.convert('RGB')
     
@@ -65,14 +56,13 @@ def detect(image_path, anchors_path, class_names, model_path, t_score = 0.35, t_
     
     image_data /= 255.
     image_data = np.expand_dims(image_data, 0) 
-       
-    sess = tf.compat.v1.keras.backend.get_session()
-    out_boxes, out_scores, out_classes = sess.run([boxes, scores, classes],
-                                                      feed_dict={yolo_model.input: image_data,
-                                                                 input_image_shape: [image.size[1],image.size[0]],
-                                                                 K.learning_phase(): 0})
-    K.clear_session()
-        
+
+    out_boxes, out_scores, out_classes = yolo_eval(yolo_model(image_data),
+              anchors=anchors,
+              num_classes=len(class_names),
+              image_shape = [image.size[1],image.size[0]],score_threshold=t_score,
+              iou_threshold=t_iou)
+
     if len(out_classes) == 0:
         roi = None
         detection_label = None
@@ -87,7 +77,6 @@ def detect(image_path, anchors_path, class_names, model_path, t_score = 0.35, t_
         left = max(0, np.floor(left + 0.5).astype('int32'))
         bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
         right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-        
         
         if (bottom < 100 or right < 100) or (bottom < 100 and right < 100):  
             if left-50<=0 and top-50 >0:

@@ -2,7 +2,7 @@
 """
 Created on Wed Sep 23 18:56:34 2020
 
-@author: User
+@author: Baccouche, Asma.
 """
 
 """Miscellaneous utility functions."""
